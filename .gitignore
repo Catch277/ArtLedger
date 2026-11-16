@@ -32,10 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...but the template has to ship: it documents the three variables and holds no values.
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+
+# commercially licensed typefaces are not published with the repo (app/fonts/index.ts uses next/font/google)
+*.otf
 next-env.d.ts

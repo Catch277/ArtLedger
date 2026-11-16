@@ -1,0 +1,1 @@
+export type ViolationScenario = 'duplicate-mint' | 'unauthorized-transfer';

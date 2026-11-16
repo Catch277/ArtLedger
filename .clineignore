@@ -1,0 +1,39 @@
+# Cline ignore - keeps the agent context on source files only.
+# Syntax mirrors .gitignore. Never remove the secrets section.
+
+# Dependencies and build output (generated)
+node_modules/
+.next/
+out/
+build/
+dist/
+coverage/
+
+# Lockfiles and type caches (regenerated, never hand-edited)
+package-lock.json
+*.tsbuildinfo
+next-env.d.ts
+
+# Secrets - never read into context. The example file is intentionally allowed.
+.env
+.env.*
+!.env.example
+
+# Logs and editor / OS noise
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Binary assets that cannot be read as text
+*.woff
+*.woff2
+*.ttf
+*.otf
+*.ico
+public/*.svg
+
+# Generated API documentation
+public/swagger.json

@@ -1,26 +1,169 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * ArtLedger design tokens - single source of truth for DESIGN.md sections 2-5.
+ * Components must never hard-code a hex value; use these utilities instead.
+ *
+ * Visual language: primereact.dev - Inter for UI, Geist Mono for technical
+ * strings, near-white canvas, hairline borders and one soft shadow per layer.
+ */
+
+@theme {
+  /* Primary brand ------------------------------------------------------ */
+  --color-brand: #0144db;
+  --color-brand-strong: #003aba; /* brand + 15% black, hover / pressed */
+  --color-brand-soft: #ccdaf8; /* brand at 20% over white */
+  --color-brand-tint: #99b4f1; /* 40% */
+  --color-brand-mid: #678fe9; /* 60% */
+  --color-brand-deep: #3469e2; /* 80% */
+
+  /* Accent - verification / success ------------------------------------ */
+  --color-accent: #33d387;
+  --color-accent-ink: #067a4b; /* green text on white - 5.39:1, never the fill itself */
+  --color-accent-wash: #edfbf4; /* soft band behind proof sections */
+  --color-accent-soft: #d6f6e7;
+  --color-accent-tint: #adedcf;
+  --color-accent-mid: #85e5b7;
+  --color-accent-deep: #5cdc9f;
+
+  /* Support - functional states only ----------------------------------- */
+  --color-warn: #fed200;
+  --color-warn-soft: #fff6cc;
+  --color-danger: #ff8647;
+  --color-danger-soft: #ffe7da;
+  --color-neon: #0ffdc1;
+
+  /* Neutrals ----------------------------------------------------------- */
+  --color-canvas: #fafafa;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f5f5f5;
+  --color-hairline: #e5e5e5;
+  --color-hairline-strong: #8a8a8a; /* form-control borders only - 3.45:1, WCAG 1.4.11 */
+  --color-ink: #0a0a0a;
+  --color-ink-muted: #737373;
+  --color-ink-inverse: #ffffff;
+
+  /* Shape -------------------------------------------------------------- */
+  --radius-control: 0.625rem; /* 10px - fields, small chips */
+  --radius-card: 1rem; /* 16px - cards, inset panels */
+  --radius-panel: 1.5rem; /* 24px - hero and feature frames */
+  --shadow-card: 0 1px 2px rgb(10 10 10 / 0.04), 0 1px 3px rgb(10 10 10 / 0.06);
+  --shadow-overlay: 0 12px 32px -8px rgb(10 10 10 / 0.14), 0 4px 12px rgb(10 10 10 / 0.06);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* next/font variables are injected on html; keep the fallback stack here. */
+  --font-display: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-sans: var(--font-inter), Inter, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), 'Geist Mono', ui-monospace, Consolas, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-weight: 400;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400; /* Inter at 400 with tight tracking - primereact.dev headings */
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    text-wrap: balance;
+  }
+
+  /* Token ids, wallet addresses, SHA-256 fingerprints and CIDs only. */
+  code,
+  kbd,
+  samp {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-soft);
+    color: var(--color-brand-strong);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Monospace uppercase eyebrow - the section label on every marketing band. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+/* 44x44 tap target for 24-32px icon buttons, without changing their visual size. */
+@utility hit-area-44 {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    height: 44px;
+    width: 44px;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/*
+ * The landing chain ticker (DESIGN.md 7.27) - the product's only looping animation.
+ *
+ * Deliberately plain CSS instead of an `--animate-*` theme token: the motion has to survive a partial theme
+ * rebuild, and the reduced-motion fallback has to beat the layout utilities rather than fight them in the
+ * cascade (an unlayered rule outranks every `@layer`, which is exactly what is needed here). The track holds
+ * two identical lists and shifts by one whole list (-50%), so the wrap is seamless at any width.
+ */
+@keyframes chain-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@layer components {
+  .chain-marquee {
+    display: flex;
+    width: max-content;
+    animation: chain-marquee 30s linear infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chain-marquee {
+    animation: none;
+  }
+
+  /* The second list only exists to close the loop, so a static band drops it instead of showing it twice. */
+  .chain-marquee > [data-duplicate='true'] {
+    display: none;
+  }
+
+  /* Unlayered on purpose: the remaining list has to wrap even though it carries `min-w-[100vw]` utilities. */
+  .chain-marquee > ul {
+    width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 0.75rem;
+    padding-right: 0;
+  }
 }
