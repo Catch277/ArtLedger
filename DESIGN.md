@@ -52,8 +52,10 @@ Scope: presentation only. Architecture, layering, API and Web3 rules live in `AG
 | `--color-accent-wash`| `#EDFBF4` | 237 · 251 · 244 | 6-0-3-2  | band behind a proof section, verified panel tint           |
 
 Blue and green together are the logo, so they never compete: green appears **only** where something _is_
-verified or already confirmed. Green is never a second call-to-action; the one exception is the connect button
-on the blue shell (§2.5). The lockup itself is
+verified or already confirmed. Green is not a second call-to-action; the recorded exceptions (§2.5) are the
+connect button on the blue shell and the landing page's two secondary CTAs — `Tra cứu không cần ví` and
+`Xem thư viện` — rendered as brand-green pills (`accentPage`, §7.1) at the product owner's request so they read
+like the connect action. The lockup itself is
 blue + green (§6.1), so the brand green is present in the shell on every screen.
 
 **Green budget.** Every route shows at least one green signal per viewport, always attached to verification or
@@ -145,7 +147,8 @@ Three derived shades complete the system:
 | `#8A8A8A`  | `#FFFFFF`  | 3.45:1 | form borders (non-text 3:1)                 |
 | `#0144DB`  | `#D6F6E7`  | 6.38:1 | blue label on an accent-soft wash (cards, banners) |
 | `#0A0A0A`  | `#33D387`  | 10.19:1 | ink label on a green fill — the default   |
-| `#FFFFFF`  | `#33D387`  | 1.94:1 | **fail** — accepted for the current nav segment and the connect button (see below) |
+| `#FFFFFF`  | `#33D387`  | 1.94:1 | **fail** — accepted for the nav segment, connect button and landing CTAs (see below) |
+| `#FFFFFF`  | `#067A4B`  | 5.39:1 | AA — `accentPage` hover, and the swap if that fill must pass |
 | `#0144DB`  | `#33D387`  | 3.79:1 | **fail** — never blue text on solid green   |
 | `#D6F6E7`  | `#0144DB`  | 6.38:1 | accent-soft pill / current tab on the shell |
 | `#FFFFFF`  | `#0144DB`  | 7.37:1 | white text and icons on the blue shell      |
@@ -160,15 +163,17 @@ Three derived shades complete the system:
 - Green, yellow, orange and neon always carry `text-ink`, plus an icon or a label.
 - Colour is never the only signal: every state also has words.
 
-**Recorded exception.** The current nav segment and the shell's `Kết nối ví` button are the only two elements
-allowed to break the rule above: a solid `bg-accent` `#33D387` fill whose label is `text-ink-inverse`. White on
-that green measures **1.94:1**, so it is a deliberate product decision, not an oversight. What keeps it usable:
-the label is `font-semibold`, the segment is redundant with `aria-current="page"`, the button always carries a
-verb and a disabled state, `hover` steps to `accent-deep` (`#5CDCA0`) and the focus ring is re-pointed to
-`outline-ink-inverse`. The connect button dims to `opacity-90` while focused, which takes the pair to roughly
-**1.8:1** — the dim is the product owner's requested feedback, and it is the reason the ring, not the fill, has
-to carry focus. Neither element ever stands alone as the only carrier of meaning. If readability ever wins, the
-fix is one class — `bg-accent-ink` (`#067A4B`) puts the same white label at **5.39:1** with no other change.
+**Recorded exceptions.** Four elements break the hard rules above, all with a solid `bg-accent` `#33D387` fill
+and a `text-ink-inverse` label: the shell's current nav segment, the shell's `Kết nối ví` button, and the landing
+page's two secondary CTAs (`accentPage`, §7.1). White on that green measures **1.94:1**, so it is a deliberate
+product decision, not an oversight. What keeps it usable: the label is `font-semibold`, the segment is redundant
+with `aria-current="page"`, every button carries a verb and a disabled state, and none of them ever stands alone
+as the only carrier of meaning. On the blue shell, `hover` steps to `accent-deep` (`#5CDCA0`) and the focus ring
+is re-pointed to `outline-ink-inverse`; the connect button dims to `opacity-90` while focused, which takes the
+pair to roughly **1.8:1** — the dim is the product owner's requested feedback, and it is the reason the ring, not
+the fill, has to carry focus. On a light page (`accentPage`) the ring stays the global brand blue (7.1:1 on
+white, §9) and `hover` darkens to `accent-ink` (`#067A4B`), which lifts the same white label to **5.39:1**. If
+readability ever wins over the fill, the fix is one token for all four — `bg-accent-ink`.
 - Never render a state colour as text on a light surface.
 
 ### 2.6 Token → utility map
@@ -177,6 +182,7 @@ fix is one class — `bg-accent-ink` (`#067A4B`) puts the same white label at **
 | ----------------- | --------------------------------------------------------------------------------------- |
 | Primary action    | `bg-brand text-ink-inverse hover:bg-brand-strong`                          |
 | Secondary action  | `border border-hairline bg-surface text-ink hover:bg-ink/5`                |
+| Green CTA (page)  | `bg-accent text-ink-inverse hover:bg-accent-ink` — `accentPage`, §7.1      |
 | Verified          | `bg-accent-soft text-ink` + `bg-accent` dot; stamps use `bg-accent`        |
 | Verified text     | `text-accent-ink` (never `text-accent`)                                    |
 | Pending           | `bg-warn-soft text-ink`                                                    |
@@ -255,15 +261,19 @@ export const geistMono = Geist_Mono({ subsets: ['latin', 'vietnamese'], variable
 - Container: `mx-auto w-full max-w-6xl px-4 sm:px-6` — 1152px content, 16→24px gutters. The landing hero is
   the one narrower column (`max-w-3xl`), because it is centred.
 - Header: `h-14`, `sticky top-0 z-10`, `border-b border-brand-strong`, `bg-brand text-ink-inverse` (opaque, so
-  no blur). Contents (nav, wallet cluster) and the mobile tab bar are specified in §7.11.
+  no blur), plus `pt-[env(safe-area-inset-top)]` so the contents clear the status bar now that the root
+  viewport requests `viewport-fit=cover`. Contents (nav, wallet cluster) and the tab bar are specified in
+  §7.11. The network banner (§7.8) renders directly after it in the flow, which keeps the sticky box exactly
+  56px plus the top safe-area inset — the toolbar and aside offsets below add the same inset.
 - Footer: `border-t border-brand-strong`, `bg-brand text-ink-inverse`, `py-10`, three zones (brand + chain chip,
   route links, contract link).
 - Section rhythm — two scales, chosen per screen (§4.4):
   - **Marketing** (`/` only): `py-16 sm:py-24`, with `py-20 sm:py-28` for the framed panel band.
   - **App** (every other route): `py-8 sm:py-12`, so the first control is visible without scrolling.
   - Two adjacent sections always differ by a hairline or a surface.
-- Page root: `flex flex-1 flex-col`; sections own their vertical padding (no wrapper margins). Below `md`
-  the root adds `pb-[calc(3.5rem+env(safe-area-inset-bottom))]` so the tab bar never covers content.
+- Page root: `flex flex-1 flex-col`; sections own their vertical padding (no wrapper margins). Below `lg`
+  the root adds `pb-[calc(3.5rem+env(safe-area-inset-bottom))]` so the tab bar never covers content. The
+  breakpoint matches the bar's own (`lg:hidden`), never `md`.
 
 ### 4.2 Spacing
 
@@ -322,7 +332,7 @@ below, so the page body starts on the canvas.
 ```
 
 **Task layout** — form on the left, context on the right. The aside is the only sticky element below the
-header (`top-24` = 64px header + 32px air).
+header (`lg:top-[calc(5rem+env(safe-area-inset-top))]` = 56px header + 24px air, plus the inset).
 
 ```html
 <div
@@ -331,7 +341,9 @@ header (`top-24` = 64px header + 32px air).
   <div class="space-y-6">
     <!-- compact StepProgress (lg:hidden), then the form -->
   </div>
-  <aside class="space-y-4 lg:sticky lg:top-24 lg:self-start">
+  <aside
+    class="space-y-4 lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start"
+  >
     <!-- StepProgress vertical (hidden lg:block), NFT preview inset, summary -->
   </aside>
 </div>
@@ -345,7 +357,7 @@ header (`top-24` = 64px header + 32px air).
 
 | Layer                             | z       | Notes                                          |
 | --------------------------------- | ------- | ---------------------------------------------- |
-| Sticky toolbar                    | `z-[5]` | `top-16`, sits under the header                |
+| Sticky toolbar                    | `z-[5]` | `sm:top-[calc(3.5rem+env(safe-area-inset-top))]`, under the header |
 | Header, tab bar                   | `z-10`  |                                                |
 | Modal (`sm+`), tray (`<sm`), menu | `z-30`  | scrim `bg-ink/40`, no blur                     |
 | Toast, tooltip                    | `z-40`  | above modals so a confirmation is never hidden |
@@ -443,6 +455,7 @@ Base: `inline-flex items-center justify-center gap-2 rounded-full font-semibold 
 | Secondary   | `border border-hairline bg-surface text-ink hover:bg-ink/5`       |
 | Inverse     | `border border-ink-inverse/25 text-ink-inverse hover:bg-surface/15` |
 | Accent      | `bg-accent text-ink-inverse hover:bg-accent-deep focus-visible:opacity-90 focus-visible:outline-ink-inverse` |
+| Accent (page) | `bg-accent text-ink-inverse hover:bg-accent-ink`                |
 | Ghost       | `text-ink-muted hover:bg-ink/5 hover:text-ink`                    |
 | Destructive | `border border-danger/40 bg-danger-soft text-ink hover:bg-danger` |
 | Link        | `px-0 text-brand underline-offset-4 hover:underline`              |
@@ -452,9 +465,12 @@ Rules: one primary button per view; a loading button keeps its width and swaps t
 wallet button is always **Accent** — a green fill with a white label — so it reads as the shell's one action and
 never competes with the page's single primary, while `Ngắt` beside it stays **Inverse** (filled connect, outlined
 disconnect, never two filled pills). **Inverse** is the only variant built for the blue shell (§4.1): it takes a
-white focus ring, because the global one is brand blue (§9). **Accent** exists for the connect action alone
-(§2.1, §2.5) — it is not a general green variant, so it never appears inside page content, where green still
-means "verified".
+white focus ring, because the global one is brand blue (§9). **Accent** is the shell's variant and exists for the
+connect action alone (§2.1, §2.5). **Accent (page)** is its light-surface twin and appears in exactly two
+places — the landing hero's `Tra cứu không cần ví` and the closing `Xem thư viện` — differing in three ways: the
+focus ring stays the global brand blue (a white ring would vanish on white), `hover` darkens to `accent-ink`
+(`#067A4B`, 5.39:1) instead of lightening to `accent-deep`, and it is still the secondary action of its pair, so
+it never takes the primary slot. Everywhere else in page content green still means "verified".
 
 **Icon button** — for copy, close, overflow and similar single-glyph actions.
 
@@ -515,6 +531,8 @@ Colour is never the only signal: every pill carries text.
 ```
 
 - Labels are always visible; placeholders never replace them.
+- Below `sm` every control renders at `1rem` (16px) via one unlayered rule in `globals.css`: iOS Safari zooms
+  the whole page for a focused field smaller than that, so the 14px scale is desktop-only.
 - Focus uses the standard 2px outline (§9); a border colour change alone is not a focus indicator.
 - Invalid: `border-danger` on the control plus a `bg-danger-soft text-ink` message with an alert icon.
 - Native validation messages are replaced by Vietnamese copy (§11).
@@ -537,7 +555,8 @@ Colour is never the only signal: every pill carries text.
 
 - The full value lives in `title` and in the clipboard payload.
 - Token IDs are never truncated (`#128`).
-- Hashes never wrap (`whitespace-nowrap`); the chip scrolls instead.
+- Hashes never wrap (`whitespace-nowrap`): the value truncates with `min-w-0` inside the chip, and the full
+  value stays in `title` and in the clipboard payload.
 - The copy button is 24px visually but its `before:` pseudo-element extends the hit area to 44×44.
 - After copying, the label changes to `Đã sao chép` for 2 seconds inside a `role=status` region.
 - One tone variant exists, `tone="brand"`, used only inside the blue shell (§7.11): `bg-surface/15
@@ -605,7 +624,10 @@ carries `aria-current="step"`.
 ```
 
 Full-width directly under the header — never a toast, because the action is required and blocking. It sits
-in the flow (not sticky). Every write control it disables carries `aria-describedby` pointing at the banner text. It is the blocking specialisation of the generic Banner (§7.17).
+in the flow (not sticky), rendered immediately **after** `</header>` rather than inside it: the sticky bar has
+to stay exactly 56px (plus its inset) or the toolbar and the asides slide under it. Every write control
+it disables carries `aria-describedby` pointing at the banner text. It is the blocking specialisation of the
+generic Banner (§7.17).
 
 ### 7.9 Async states
 
@@ -621,7 +643,8 @@ in the flow (not sticky). Every write control it disables carries `aria-describe
 - Head `bg-surface-muted text-xs font-bold text-ink-muted`; rows 56px with `border-t border-hairline`,
   hover `bg-canvas`.
 - Numbers right-aligned with `tabular-nums`; addresses and hashes monospace.
-- Below `sm` rows become `ListCell` rows (§7.21); only hash-heavy tables may scroll horizontally.
+- Below `md` rows become `ListCell` rows (§7.21); a hash-heavy table may scroll horizontally inside its
+  `overflow-x-auto` card, which is the only place the page is allowed to scroll sideways.
 - Every table has a caption: visible when it names the data, otherwise `<caption class="sr-only">`.
 
 ### 7.11 Navigation & wallet cluster
@@ -630,8 +653,8 @@ Seven routes are too many for one flat bar, so they are grouped by job.
 
 | Group   | Items                                        | Placement                                    |
 | ------- | -------------------------------------------- | -------------------------------------------- |
-| Primary | Thư viện · Đăng ký · Chuyển nhượng · Tra cứu | header nav (`md+`), tab bar (`<md`)          |
-| Tools   | Kiểm tra ảnh · Phòng thí nghiệm              | `Công cụ` menu (`md+`), `Thêm` sheet (`<md`) |
+| Primary | Thư viện · Đăng ký · Chuyển nhượng · Tra cứu | header nav (`lg+`), tab bar (`<lg`)          |
+| Tools   | Kiểm tra ảnh · Phòng thí nghiệm              | `Công cụ` menu (`lg+`), `Thêm` sheet (`<lg`) |
 
 ```html
 <header
@@ -642,13 +665,13 @@ Seven routes are too many for one flat bar, so they are grouped by job.
     class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:rounded-control focus:bg-surface focus:px-4 focus:py-2 focus:text-ink focus:outline-ink"
     >Bỏ qua điều hướng</a
   >
-  <div class="mx-auto flex h-full max-w-6xl items-center gap-6 px-4 sm:px-6">
+  <div class="mx-auto flex h-full max-w-6xl items-center gap-3 px-4 sm:gap-6 sm:px-6">
     <a href="/" class="flex items-center gap-2 text-[17px] font-semibold tracking-tight text-ink-inverse">
       <span class="inline-flex h-8 w-8 items-center justify-center rounded-control bg-surface">
         <!-- mark 20px: blue + green, so it needs the light tile on the blue bar -->
       </span>
     </a>
-    <nav aria-label="Chính" class="hidden flex-1 items-center gap-1 md:flex">
+    <nav aria-label="Chính" class="hidden min-w-0 flex-1 items-center gap-1 lg:flex">
       <a
         href="/library"
         aria-current="page"
@@ -675,7 +698,11 @@ Seven routes are too many for one flat bar, so they are grouped by job.
   the bar. On the current pill focus adds the ring only, since its label is already white.
 - The `Công cụ` menu is `rounded-card border border-hairline bg-surface p-2 shadow-overlay` — white, because it
   floats over the page, not over the bar. Esc closes it and returns focus to its button.
-- **Mobile tab bar** (`<md`): five slots, never more, on the same `bg-brand` with a `border-brand-strong` top
+- The flat bar starts at `lg`, not `md`. Five pills plus a connected wallet cluster need ~840px; at 768–1023
+  the header carries only the wordmark and the cluster, and the tab bar is the navigation — which is also the
+  thumb-reachable choice at that width. The row gap tightens to `gap-3` below `sm` so the cluster fits a
+  360px phone.
+- **Mobile tab bar** (`<lg`): five slots, never more, on the same `bg-brand` with a `border-brand-strong` top
   edge. Muted items are `text-ink-inverse/80`; the current slot becomes a `bg-accent` tile with a white semibold
   label (rounded 10px, inset by `m-1.5`, 44px tall so the tap target holds) — same exception as the header pill.
   The header keeps only the wordmark and the wallet cluster.
@@ -683,7 +710,7 @@ Seven routes are too many for one flat bar, so they are grouped by job.
 ```html
 <nav
   aria-label="Chính"
-  class="fixed inset-x-0 bottom-0 z-10 border-t border-brand-strong bg-brand pb-[env(safe-area-inset-bottom)] md:hidden"
+  class="fixed inset-x-0 bottom-0 z-10 border-t border-brand-strong bg-brand pb-[env(safe-area-inset-bottom)] lg:hidden"
 >
   <ul class="grid grid-cols-5">
     <li>
@@ -696,10 +723,14 @@ Seven routes are too many for one flat bar, so they are grouped by job.
         Thư viện</a
       >
     </li>
-    <!-- … Đăng ký · Chuyển nhượng · Tra cứu · Thêm (opens the sheet) -->
+    <!-- … Đăng ký · Chuyển · Tra cứu · Thêm (opens the sheet) -->
   </ul>
 </nav>
 ```
+
+- Five slots leave ~66px inside the current tile on a 393px phone, so the longest primary label reads `Chuyển`
+  in the bar while its link carries `aria-label="Chuyển nhượng"` — the accessible name stays whole and still
+  contains the visible text (WCAG 2.5.3). Labels are `whitespace-nowrap` so they never wrap out of the 44px tile.
 
 - The `Thêm` sheet is `rounded-t-card bg-surface shadow-overlay` over a `bg-ink/40` scrim, traps focus, and
   closes on Esc or scrim tap.
@@ -717,7 +748,10 @@ Seven routes are too many for one flat bar, so they are grouped by job.
 | Connected, idle  | pill `sepolia` (`border-ink-inverse/25 text-ink-inverse/80`, `bg-accent` dot) + address chip |
 | Mining           | pill swaps to Pending `Đang chờ xác nhận`                                                |
 
-On mobile the pill keeps its word; the address chip shortens to `0x7a…9cE1` with the copy button kept.
+Below `sm` the bar drops what it can without losing information: the `sepolia` pill, the profile icon link and
+the wrong-chain pill are all `hidden … sm:inline-flex`, because the network banner directly under the header says
+the same thing in words and carries the switch action. The address chip keeps its short form `0x7a…9cE1` and its
+copy button at every width. Every state above must still fit a 360px phone with `gap-3` in the row.
 
 ### 7.12 Verdict banner
 
@@ -808,20 +842,31 @@ groups of eight hex characters so a difference can be found by eye.
 ```
 
 - The whole card is the link, so the hash text inside is not a second control; its full value is in `title`.
-- Toolbar: `sticky top-16 z-[5] border-b border-hairline bg-surface p-4`, with a result count
+- Toolbar: `sm:sticky sm:top-[calc(3.5rem+env(safe-area-inset-top))] z-[5] border-b border-hairline bg-surface p-4`, with a result count
   (`128 tác phẩm`, `tabular-nums`), search, filter and a two-button view toggle. The toggle uses
-  `aria-pressed`; the active button is `bg-brand-soft text-brand-strong border-brand`.
+  `aria-pressed`; the active button is `bg-brand-soft text-brand-strong border-brand`. Sticky starts at `sm`:
+  on a phone the toolbar is ~130px tall and the fixed tab bar already holds the bottom of the viewport, so it
+  scrolls away instead.
 - The table view reuses §7.10; the choice persists for the session only.
-- **Pagination** — 24 works per page. Below the grid: `nav aria-label="Phân trang"` with Secondary `sm` buttons
-  `Trước` / `Sau`, page numbers as links (current: `aria-current="page"`, `bg-brand-soft text-brand-strong
-border-brand`), and `Hiển thị 1–24 / 128` in `text-xs text-ink-muted tabular-nums`. The page number lives in
-  the URL (`?page=2`) so a result can be shared.
+- **Pagination** — `components/ui/Pagination.tsx`, shared by `/library` and the landing preview. Below the
+  grid: `nav aria-label="Phân trang"` with Secondary `sm` buttons `Trước` / `Sau`, page numbers as links
+  (current: `aria-current="page"`, `bg-ink/[0.06] text-ink`), and a `text-xs text-ink-muted tabular-nums`
+  counter. `/library` keeps `Hiển thị 1–24 / 128` on the left, 24 works per page, and the page in the URL
+  (`?page=2`) so a result can be shared.
+- The landing market preview passes neither `numbers` nor `summary`: eight works per page, the compact
+  `Trước · Trang 1/3 · Sau` bar centred under the grid, no URL state (the page number is viewing state there,
+  not a shareable result), and no bar at all when the registry fits on one page. A page change scrolls the
+  section back to its top (`scrollIntoView({ block: 'start' })`, with
+  `scroll-mt-[calc(3.5rem+env(safe-area-inset-top))]` on the section and no smooth scroll under
+  `prefers-reduced-motion`) because eight cards are taller than a phone screen.
+- Below `sm` the numbered links collapse to `Trang 2 / 5`: two buttons plus seven pills need ~412px, more than
+  the 361px content box of a 393px phone. The bar wraps and centres instead of scrolling sideways.
 
 ### 7.15 Tabs
 
 - A segmented pill control: `role="tablist"` on `inline-flex gap-1 rounded-full bg-ink/[0.04] p-1`; each tab
   `h-9 px-4 text-sm font-medium text-ink-muted`, selected `bg-surface text-ink shadow-card`. Arrow keys move
-  between tabs.
+  between tabs. On touch it grows to `pointer-coarse:h-11` (44px) and keeps `overflow-x-auto`.
 - Panels are addressable by hash (`#metadata`, `#lich-su`) so a link can open the right panel.
 
 ### 7.16 Revert log
@@ -832,7 +877,9 @@ border-brand`), and `Hiển thị 1–24 / 128` in `text-xs text-ink-muted tabul
 
 ### 7.17 Banner
 
-The page-level notice. In flow, full width, never sticky and never floating.
+The page-level notice. In flow, full width, never sticky and never floating. Its text block is
+`min-w-0 flex-1 break-words`: an RPC error can carry an unbroken hash, and a flex item defaults to
+`min-width: auto`, which would widen the page instead of wrapping.
 
 | Variant  | Surface            | Role     | Example                      |
 | -------- | ------------------ | -------- | ---------------------------- |
@@ -874,7 +921,7 @@ Non-blocking confirmation only.
 - Allowed: `Đã sao chép`, `Đã lưu bộ lọc`. Not allowed: errors, anything with a decision, anything the user
   must read to continue (those are banners or inline messages, §7.9).
 - `role="status"`, `rounded-control border border-hairline bg-surface px-4 py-3 text-sm shadow-overlay`.
-  Bottom-left on `md+`; on `<md` it sits above the tab bar (`bottom-[calc(4.5rem+env(safe-area-inset-bottom))]`).
+  Bottom-left on `lg+`; below `lg` it sits above the tab bar (`bottom-[calc(4.5rem+env(safe-area-inset-bottom))]`).
 - One at a time (new replaces old). Auto-dismiss after 5s; the timer pauses on hover and focus. A toast with an
   action does not auto-dismiss. Under `prefers-reduced-motion` it fades only.
 
@@ -1001,7 +1048,7 @@ A lightweight coachmark, not a tour.
 - The avatar is an IPFS image or two initials on `bg-brand-soft text-brand`; never a letter on the accent green.
 - Status is one pill: `Bản nháp trên thiết bị` (neutral) or `Đã công bố` (verified tone). "Đã công bố" means a CID
   exists, not that the wallet signed the document — one muted sentence in the card footer says so.
-- The aside is `Card` + `CardHeader` with `lg:sticky lg:top-20 lg:self-start`: balance in
+- The aside is `Card` + `CardHeader` with `lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start`: balance in
   `text-3xl font-normal tabular-nums`, the address chip, then one secondary action (`Cập nhật`) and one text link
   (`Nhận ETH thử`).
 - Owned artworks reuse the library card (§7.14) in the Browse grid, so `/profile` adds no new artwork variant.
@@ -1052,6 +1099,41 @@ chuỗi được hỗ trợ.* The visible truth is the ringed Ethereum badge and
 is genuinely added to the product gets its ring, its label and its own entry in `CHAINS` before it appears here —
 the marquee never grows a `Đã hỗ trợ`-style label the contract cannot back, and it is never the only place a
 reader learns which chain this runs on.
+
+### 7.28 Artwork preview (transfer target)
+
+`components/artwork/ArtworkThumb.tsx` — the frame that shows *which* artwork a token is before the user acts on
+it. First used by `/transfer`, where §10.1 already promised a token preview while the screen only printed an id.
+
+```html
+<div class="relative aspect-square w-full overflow-hidden rounded-control bg-surface-muted">
+  <img src="…gateway…/bafk…" alt="Tên tác phẩm" class="object-cover" />
+</div>
+<p class="mt-4 text-base font-semibold leading-tight tracking-tight">Tên tác phẩm</p>
+<p class="mt-0.5 text-xs text-ink-muted">Tác giả</p>
+<p class="mt-3 font-mono text-sm tabular-nums">#128</p>
+<p class="mt-1 text-xs text-ink-muted">Token ERC-721 trên Sepolia</p>
+```
+
+| State   | Recipe                                                                                                                                       |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Empty   | `aspect-square` frame in `bg-surface-muted` with one muted sentence (`Ảnh tác phẩm sẽ hiện ở đây.`). The frame keeps its height, so nothing jumps when the artwork arrives |
+| Loading | `animate-pulse rounded-control bg-surface-muted` in the final shape (§7.9) — a skeleton, never a spinner                                      |
+| Failed  | `ImageOff` (lucide, 16px) centred with `Không tải được ảnh` for assistive tech only; the reason from `metadataError` prints as `text-xs text-ink-muted` under the title, followed by a `Tải lại ảnh` link button that re-reads only the artwork (§7.9) |
+| Ready   | `ArtworkImage` in the frame: `object-cover`, gateway fallback when a host rate-limits                                            |
+
+Rules:
+
+- **The verdict comes first.** On `/transfer` the ownership check is its own read (`GetArtworkOwnerUseCase`) and
+  the preview is a second one (`GetArtworkPreviewUseCase`), requested only after the verdict resolves. A slow or
+  rate-limited gateway can never delay — or turn into an error — the pill that unlocks the transfer button.
+- Three sizes, one recipe: `h-20 w-20` next to the step-1 verdict, `aspect-square` full width in the aside card,
+  `h-14 w-14` in the confirm modal so the signer sees what is about to leave the wallet.
+- The name is `metadata.name`, the author `metadata.author`, and the token id stays `font-mono` even when the
+  metadata is unreadable — an unlabelled square is never the only description of the token.
+- The aside card links to `/verify?tokenId=…` (`text-xs font-semibold text-brand`) instead of repeating the
+  metadata panel of the proof screen.
+- Placeholders and skeletons are `aria-hidden`; only the real image carries an `alt` (the artwork name).
 
 ## 8. State matrix
 
@@ -1107,7 +1189,7 @@ on the green pill; `bg-accent-ink` is the 5.39:1 swap if that is ever revisited.
 | `/library`  | Thư viện           | browse every registered work             | card grid, filter, empty state                                |
 | `/profile`  | Hồ sơ              | edit a display profile, read balance, owned NFTs and gas spent | identity card, wallet aside, owned grid, transactions table (§7.26), edit modal |
 | `/register` | Đăng ký tác phẩm   | upload → pin → simulate → mint           | dropzone, metadata form, step progress                        |
-| `/transfer` | Chuyển nhượng      | hand a token to another wallet           | token lookup, owner check, recipient field, confirm modal     |
+| `/transfer` | Chuyển nhượng      | hand a token to another wallet           | token lookup, owner check, artwork preview (§7.28), recipient field, confirm modal |
 | `/verify`   | Tra cứu & xác thực | prove ownership without a wallet         | owner card, metadata panel, transfer timeline, explorer links |
 | `/lab`      | Phòng thí nghiệm   | show the contract refusing bad actions   | scenario cards, revert log                                    |
 | `/check`    | Kiểm tra ảnh       | compare an image against its fingerprint | dropzone, hash comparison, result pill                        |
@@ -1121,11 +1203,11 @@ lines and the route links (§2.1).
 
 | Screen      | Pattern | Desktop (`lg+`)                                                                                                                                                                                                        | Mobile                                                                                                                                      |
 | ----------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/`         | Landing | A full-bleed chain ticker (§7.27) flush under the header, then the centered hero: `sepolia` badge, H1, lead, `Đăng ký tác phẩm` (Primary) + `Tra cứu không cần ví` (Secondary), mono line. Then a stat strip of DataCards (§7.23), the market preview (4 real artwork cards), the module grid (3 × 2), the proof band. | Hero stays centered and stacks; the ticker keeps scrolling edge to edge; market preview becomes 1 column, then 2 from `sm`; module cards one column. |
+| `/`         | Landing | A full-bleed chain ticker (§7.27) flush under the header, then the centered hero: `sepolia` badge, H1, lead, `Đăng ký tác phẩm` (Primary) + `Tra cứu không cần ví` (Accent page), mono line. Then a stat strip of DataCards (§7.23), the market preview (8 real artwork cards per page, pager §7.14), the module grid (3 × 2), the proof band. | Hero stays centered and stacks; the ticker keeps scrolling edge to edge; market preview becomes 1 column, then 2 from `sm`; module cards one column. |
 | `/library`  | Browse  | Sticky toolbar, then 4-column artwork cards or the table view, with pagination (§7.14) below.                                                                                                                          | Toolbar wraps to two rows (search above filters), filters open in a tray; 1 column, then 2 from `sm`; the table view becomes ListCell rows. |
 | `/profile`  | Browse  | Identity card (avatar, display name, address chip, status pill, edit/publish) on the left with the wallet aside (360px, sticky) on the right: balance, address, refresh, faucet. Then the owned-NFT grid with its own refresh, then the transactions table (§7.26). Editing opens the shared modal. | Everything stacks: identity card, wallet card, owned grid 1 → 2 columns, transactions as stacked rows; the edit form becomes the bottom tray. |
 | `/register` | Task    | Form left; right aside holds the vertical StepProgress, the NFT preview and a summary.                                                                                                                                 | Compact horizontal stepper above the form; preview below it.                                                                                |
-| `/transfer` | Task    | Left: token lookup → owner check → recipient field. Right: token preview and a plain-language summary of the change. The confirm modal uses `shadow-overlay`.                                                          | Same order, one column.                                                                                                                     |
+| `/transfer` | Task    | Left: token lookup → owner check → recipient field. Right: artwork preview (§7.28) and a plain-language summary of the change. The confirm modal uses `shadow-overlay` and repeats the artwork as a 56px thumb.                                                          | Same order, one column.                                                                                                                     |
 | `/verify`   | Proof   | Verdict banner, then a 360px sticky track (artwork + owner card) and a fluid track with tabs `Siêu dữ liệu` / `Lịch sử chuyển nhượng`, ending in the explorer links.                                                   | Banner, owner card, artwork, then tabs.                                                                                                     |
 | `/check`    | Task    | Dropzone left; result right: verdict banner above the hash comparison (§7.13).                                                                                                                                         | Dropzone, verdict, registered fingerprint, uploaded fingerprint.                                                                            |
 | `/lab`      | Proof   | Scenario cards (2 columns) left; the revert log (§7.16) in a sticky right track.                                                                                                                                       | Scenarios first, log below.                                                                                                                 |

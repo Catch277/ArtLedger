@@ -8,8 +8,6 @@ import type { IIpfsReader } from '@/lib/domain/ports/IIpfsReader';
 import type { WalletAddress } from '@/lib/domain/types/eth';
 
 export interface ListLibraryOptions {
-  /** Stop after this many items: the landing page only needs a teaser. */
-  limit?: number;
   /**
    * Only return tokens this wallet holds. There is no enumeration extension, so
    * the filter costs one ownerOf per id — fine for a demo collection.
@@ -30,8 +28,6 @@ export class ListLibraryUseCase {
 
     // A demo collection holds a handful of tokens, so one metadata fetch per token beats an indexer.
     for (let index = total; index >= 1; index -= 1) {
-      if (options.limit !== undefined && items.length >= options.limit) break;
-
       const tokenId = String(index);
       if (options.owner) {
         const holder = await this.query.getOwnerOf(tokenId).catch(() => null);

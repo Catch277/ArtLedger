@@ -159,7 +159,7 @@ export default function LabPage() {
           </div>
         </div>
 
-        <aside className='lg:sticky lg:top-20 lg:self-start'>
+        <aside className='lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start'>
           <Card>
             <CardHeader
               title='Nhật ký revert'

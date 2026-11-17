@@ -46,7 +46,9 @@ export function Banner({
     >
       <div className='mx-auto flex max-w-6xl items-start gap-3'>
         <Icon aria-hidden size={18} strokeWidth={2} className={`mt-0.5 shrink-0 ${TONE[variant]}`} />
-        <div className='flex-1 leading-6'>{children}</div>
+        {/* `min-w-0 break-words`: an RPC error can carry an unbroken hash, and a flex item defaults
+            to `min-width: auto`, which would widen the page instead of wrapping. */}
+        <div className='min-w-0 flex-1 break-words leading-6'>{children}</div>
         {action ? <div className='shrink-0'>{action}</div> : null}
       </div>
     </div>

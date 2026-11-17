@@ -105,7 +105,7 @@ export default function HomePage() {
             <Button as={Link} href='/register' size='lg' className='w-full sm:w-auto'>
               Đăng ký tác phẩm
             </Button>
-            <Button as={Link} href='/verify' variant='secondary' size='lg' className='w-full sm:w-auto'>
+            <Button as={Link} href='/verify' variant='accentPage' size='lg' className='w-full sm:w-auto'>
               Tra cứu không cần ví
             </Button>
           </div>
@@ -253,7 +253,7 @@ export default function HomePage() {
             <Button as={Link} href='/register' size='lg' className='w-full sm:w-auto'>
               Đăng ký tác phẩm
             </Button>
-            <Button as={Link} href='/library' variant='secondary' size='lg' className='w-full sm:w-auto'>
+            <Button as={Link} href='/library' variant='accentPage' size='lg' className='w-full sm:w-auto'>
               Xem thư viện
             </Button>
           </div>

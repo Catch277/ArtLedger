@@ -97,6 +97,20 @@
   }
 }
 
+/*
+ * iOS Safari zooms the whole page when a focused field renders below 16px, so every search box and
+ * token lookup would jump the layout on an iPhone. Unlayered on purpose: the field utilities
+ * (`text-sm`) live in the utilities layer and would otherwise win. Scoped below `sm` so the desktop
+ * type scale in DESIGN.md 3.4 stays exactly as specified.
+ */
+@media (max-width: 639px) {
+  input:not([type='file']):not([type='checkbox']):not([type='radio']),
+  select,
+  textarea {
+    font-size: 1rem;
+  }
+}
+
 /* Monospace uppercase eyebrow - the section label on every marketing band. */
 @utility eyebrow {
   font-family: var(--font-mono);

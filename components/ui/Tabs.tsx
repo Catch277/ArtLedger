@@ -31,7 +31,7 @@ export function Tabs<T extends string>({ tabs, active, label }: { tabs: { id: T;
             aria-controls={tab.id}
             href={`#${tab.id}`}
             aria-selected={selected}
-            className={`inline-flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-medium transition-colors ${
+            className={`inline-flex h-9 shrink-0 items-center rounded-full px-4 text-sm font-medium transition-colors pointer-coarse:h-11 ${
               selected ? 'bg-surface text-ink shadow-card' : 'text-ink-muted hover:text-ink'
             }`}
           >

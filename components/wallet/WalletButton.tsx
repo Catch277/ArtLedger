@@ -48,7 +48,9 @@ export function WalletButton() {
           sepolia
         </span>
       ) : (
-        <span className='inline-flex shrink-0 items-center gap-1.5 rounded-full bg-warn-soft px-2.5 py-1 font-mono text-[11px] text-ink'>
+        // On phones the network banner below the bar already says "Ví đang ở mạng khác" with the
+        // switch action, so the 85px pill would only duplicate it and push the row past 393px.
+        <span className='hidden shrink-0 items-center gap-1.5 rounded-full bg-warn-soft px-2.5 py-1 font-mono text-[11px] text-ink sm:inline-flex'>
           <span aria-hidden className='h-1.5 w-1.5 rounded-full bg-warn' />
           sai mạng
         </span>
@@ -60,7 +62,7 @@ export function WalletButton() {
         href='/profile'
         aria-label='Mở hồ sơ'
         title='Hồ sơ'
-        className='hidden h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-inverse/80 transition-colors hover:bg-surface/15 hover:text-ink-inverse focus-visible:text-ink-inverse focus-visible:outline-ink-inverse sm:inline-flex'
+        className='hidden h-8 w-8 shrink-0 items-center justify-center rounded-full text-ink-inverse/80 transition-colors hover:bg-surface/15 hover:text-ink-inverse focus-visible:text-ink-inverse focus-visible:outline-ink-inverse pointer-coarse:h-11 pointer-coarse:w-11 sm:inline-flex'
       >
         <UserRound aria-hidden size={18} strokeWidth={2} />
       </Link>

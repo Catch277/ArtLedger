@@ -127,8 +127,8 @@ export function ProfileTransactions({
       ) : null}
 
       {state === 'ready' && transactions.length > 0 ? (
-        <div className='mt-6 overflow-hidden rounded-card border border-hairline bg-surface shadow-card'>
-          <table className='hidden w-full text-left sm:table'>
+        <div className='mt-6 overflow-x-auto rounded-card border border-hairline bg-surface shadow-card'>
+          <table className='hidden w-full text-left md:table'>
             <caption className='sr-only'>Giao dịch của ví với hợp đồng TacPhamNFT trên Sepolia</caption>
             <thead className='bg-surface-muted text-xs font-bold text-ink-muted'>
               <tr>
@@ -179,7 +179,7 @@ export function ProfileTransactions({
             </tbody>
           </table>
 
-          <ul className='sm:hidden'>
+          <ul className='md:hidden'>
             {transactions.map((transaction) => {
               const Icon = KIND_ICON[transaction.kind];
               const hint = feeHint(transaction);

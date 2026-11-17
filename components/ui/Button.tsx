@@ -1,6 +1,14 @@
 import type { ComponentPropsWithoutRef, ElementType } from 'react';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'inverse' | 'accent' | 'ghost' | 'destructive' | 'link';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'inverse'
+  | 'accent'
+  | 'accentPage'
+  | 'ghost'
+  | 'destructive'
+  | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const BASE =
@@ -20,6 +28,10 @@ const VARIANTS: Record<ButtonVariant, string> = {
   // The shell's connect action. `secondary` is the light-page variant and reads ink-on-blue up there, so the
   // header's only filled pill is green; DESIGN.md 2.5 records the white-on-green ratio it costs.
   accent: 'bg-accent text-ink-inverse hover:bg-accent-deep focus-visible:opacity-90 focus-visible:outline-ink-inverse',
+  // The green CTA that lives inside page content (landing hero + the closing library CTA). Same fill as the
+  // shell pill, but the focus ring stays the global brand blue because this sits on white, and hover darkens
+  // to `accent-ink`, taking the white label from 1.94:1 up to 5.39:1 instead of down. DESIGN.md 2.5/7.1.
+  accentPage: 'bg-accent text-ink-inverse hover:bg-accent-ink',
   ghost: 'text-ink-muted hover:bg-ink/5 hover:text-ink',
   destructive: 'border border-danger/40 bg-danger-soft text-ink hover:bg-danger',
   link: 'px-0 text-brand underline-offset-4 hover:underline',

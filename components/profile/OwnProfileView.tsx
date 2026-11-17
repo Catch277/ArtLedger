@@ -261,7 +261,7 @@ function ProfileWorkspace({ address }: { address: WalletAddress }) {
             )
           }
         />
-        <Card className='lg:sticky lg:top-20 lg:self-start'>
+        <Card className='lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start'>
           <CardHeader
             title='Ví Sepolia'
             action={

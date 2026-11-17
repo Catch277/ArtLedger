@@ -305,7 +305,7 @@ client) carry `tac_gia` and `attributes` rather than `author` / `year`, and carr
   mà không tốn gas; người xác minh không cần ví vẫn tra cứu được.
 - Bộ nhận diện đã hoàn chỉnh: màu, phông Inter/Geist Mono, token trong `app/globals.css`; tám màn hình, use case
   và route API đều đã xong (xem bảng trạng thái trong `AGENTS.md`).
-- Trang chủ mở đầu bằng chợ tác phẩm: bốn NFT mới nhất đọc từ hợp đồng, kèm trạng thái trống/lỗi rõ ràng; không
-  bịa giá vì hợp đồng không có trường giá.
+- Trang chủ mở đầu bằng chợ tác phẩm: tám NFT mới nhất mỗi trang, có phân trang, đọc từ hợp đồng, kèm trạng
+  thái trống/lỗi rõ ràng; không bịa giá vì hợp đồng không có trường giá.
 - Hồ sơ cá nhân (`/profile`): sửa tên hiển thị, ảnh đại diện, liên kết; xem số dư Sepolia và NFT đang giữ. Bản
   nháp nằm trên thiết bị, bản công bố nằm trên IPFS — nêu rõ giới hạn này để không ai tưởng là dữ liệu on-chain.

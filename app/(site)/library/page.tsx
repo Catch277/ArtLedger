@@ -10,6 +10,7 @@ import { Banner } from '@/components/ui/Banner';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ListCell } from '@/components/ui/ListCell';
+import { Pagination } from '@/components/ui/Pagination';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { ContractNotConfiguredError } from '@/lib/domain/errors/ContractNotConfiguredError';
 import type { LibraryItem } from '@/lib/domain/entities/LibraryItem';
@@ -112,7 +113,9 @@ function LibraryBrowser() {
 
   return (
     <div className='mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12'>
-      <section className='sticky top-14 z-[5] -mx-4 border-b border-hairline bg-surface px-4 py-4 sm:-mx-6 sm:px-6'>
+      {/* Sticky from `sm` only: on phones the toolbar is ~130px tall and the fixed tab bar already
+          owns the bottom of a 660px-tall viewport. */}
+      <section className='z-[5] -mx-4 border-b border-hairline bg-surface px-4 py-4 sm:sticky sm:top-[calc(3.5rem+env(safe-area-inset-top))] sm:-mx-6 sm:px-6'>
         <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
           <p className='font-mono text-[11px] tabular-nums text-ink-muted'>
             {state === 'ready' ? `${filtered.length} tác phẩm` : 'Đang đếm tác phẩm…'}
@@ -131,7 +134,7 @@ function LibraryBrowser() {
                 aria-pressed={view === 'grid'}
                 onClick={() => setView('grid')}
                 aria-label='Xem dạng lưới'
-                className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors pointer-coarse:h-11 pointer-coarse:w-11 ${
                   view === 'grid' ? 'bg-ink/[0.06] text-ink' : 'text-ink-muted hover:text-ink'
                 }`}
               >
@@ -142,7 +145,7 @@ function LibraryBrowser() {
                 aria-pressed={view === 'table'}
                 onClick={() => setView('table')}
                 aria-label='Xem dạng bảng'
-                className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                className={`inline-flex h-8 w-8 items-center justify-center rounded-full transition-colors pointer-coarse:h-11 pointer-coarse:w-11 ${
                   view === 'table' ? 'bg-ink/[0.06] text-ink' : 'text-ink-muted hover:text-ink'
                 }`}
               >
@@ -198,8 +201,8 @@ function LibraryBrowser() {
               ))}
             </div>
           ) : (
-            <div className='mt-6 overflow-hidden rounded-card border border-hairline bg-surface'>
-              <table className='hidden w-full text-left text-sm sm:table'>
+            <div className='mt-6 overflow-x-auto rounded-card border border-hairline bg-surface'>
+              <table className='hidden w-full text-left text-sm md:table'>
                 <caption className='sr-only'>Tác phẩm đã đăng ký</caption>
                 <thead className='bg-surface-muted font-mono text-[11px] text-ink-muted'>
                   <tr>
@@ -224,7 +227,7 @@ function LibraryBrowser() {
                   ))}
                 </tbody>
               </table>
-              <div className='sm:hidden'>
+              <div className='md:hidden'>
                 {visible.map((item) => (
                   <ListCell
                     key={item.tokenId}
@@ -239,35 +242,14 @@ function LibraryBrowser() {
             </div>
           )}
 
-          <nav aria-label='Phân trang' className='mt-6 flex flex-wrap items-center justify-between gap-3'>
-            <p className='text-xs tabular-nums text-ink-muted'>
-              Hiển thị {start + 1}–{Math.min(start + PAGE_SIZE, filtered.length)} / {filtered.length}
-            </p>
-            <div className='flex items-center gap-2'>
-              <Button variant='secondary' size='sm' onClick={() => goTo(safePage - 1)} disabled={safePage <= 1}>
-                Trước
-              </Button>
-              {Array.from({ length: pageCount }, (_, index) => index + 1).slice(0, 7).map((number) => (
-                <Link
-                  key={number}
-                  href={`/library?page=${number}`}
-                  onClick={(event) => {
-                    event.preventDefault();
-                    goTo(number);
-                  }}
-                  aria-current={number === safePage ? 'page' : undefined}
-                  className={`inline-flex h-9 min-w-9 items-center justify-center rounded-full px-3 text-xs font-medium tabular-nums transition-colors ${
-                    number === safePage ? 'bg-ink/[0.06] text-ink' : 'text-ink-muted hover:bg-ink/5 hover:text-ink'
-                  }`}
-                >
-                  {number}
-                </Link>
-              ))}
-              <Button variant='secondary' size='sm' onClick={() => goTo(safePage + 1)} disabled={safePage >= pageCount}>
-                Sau
-              </Button>
-            </div>
-          </nav>
+          <Pagination
+            className='mt-6'
+            page={safePage}
+            pageCount={pageCount}
+            onChange={goTo}
+            summary={`Hiển thị ${start + 1}–${Math.min(start + PAGE_SIZE, filtered.length)} / ${filtered.length}`}
+            numbers={(number) => `/library?page=${number}`}
+          />
         </>
       ) : null}
     </div>

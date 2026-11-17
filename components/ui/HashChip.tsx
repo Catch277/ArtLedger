@@ -35,7 +35,9 @@ export function HashChip({
       }`}
     >
       {label ? <span className={`shrink-0 ${onShell ? 'text-ink-inverse/80' : 'text-ink-muted'}`}>{label}</span> : null}
-      <span className='truncate whitespace-nowrap' title={value}>
+      {/* `min-w-0` lets the chip shrink inside a flex parent (card header, verdict banner) instead
+          of pushing the row wider than the viewport. */}
+      <span className='min-w-0 truncate whitespace-nowrap' title={value}>
         {display ?? value}
       </span>
       <button

@@ -135,14 +135,16 @@ export default function VerifyPage() {
             </VerdictBanner>
 
             <div className='grid gap-6 lg:grid-cols-[360px_minmax(0,1fr)] lg:items-start'>
-              <div className='space-y-4 lg:sticky lg:top-20'>
+              {/* Owner before artwork on phones (DESIGN.md 10.1); the two tracks keep their desktop
+                  order from `lg`. */}
+              <div className='flex flex-col-reverse gap-4 lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:flex-col'>
                 <article className='overflow-hidden rounded-card border border-hairline bg-surface shadow-card'>
                   <div className='relative aspect-square bg-surface-muted'>
                     {result.metadata ? (
                       <ArtworkImage
                         uri={result.metadata.image}
                         alt={result.metadata.name ?? `Token #${result.tokenId}`}
-                        sizes='360px'
+                        sizes='(min-width: 1024px) 360px, 100vw'
                       />
                     ) : (
                       <div className='flex h-full items-center justify-center px-4 text-center text-xs text-ink-muted'>

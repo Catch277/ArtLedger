@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import Link from 'next/link';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
+import { ArtworkThumb } from '@/components/artwork/ArtworkThumb';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useWallet } from '@/components/providers/WalletProvider';
 import { Banner } from '@/components/ui/Banner';
@@ -12,11 +14,14 @@ import { HashChip } from '@/components/ui/HashChip';
 import { Modal } from '@/components/ui/Modal';
 import { StatusPill } from '@/components/ui/StatusPill';
 import { explorerTxUrl } from '@/lib/domain/config/sepolia';
+import type { LibraryItem } from '@/lib/domain/entities/LibraryItem';
 import { isWalletAddress, sameAddress, shortenAddress } from '@/lib/domain/types/address';
 import { contractAddress, deployBlock, sepoliaRpcUrl } from '@/lib/infrastructure/config/env';
+import { GatewayIpfsReader } from '@/lib/infrastructure/ipfs/GatewayIpfsReader';
 import { JsonRpcArtworkQueryGateway } from '@/lib/infrastructure/web3/JsonRpcArtworkQueryGateway';
 import { MetamaskArtworkWriteGateway } from '@/lib/infrastructure/web3/MetamaskArtworkWriteGateway';
 import { GetArtworkOwnerUseCase } from '@/lib/usecases/GetArtworkOwnerUseCase';
+import { GetArtworkPreviewUseCase } from '@/lib/usecases/GetArtworkPreviewUseCase';
 import { TransferArtworkUseCase } from '@/lib/usecases/TransferArtworkUseCase';
 
 const CONTROL =
@@ -30,6 +35,8 @@ export default function TransferPage() {
   const { address, isSepolia, isInstalled } = useWallet();
   const [tokenInput, setTokenInput] = useState('');
   const [checked, setChecked] = useState<{ tokenId: string; owner: string } | null>(null);
+  const [preview, setPreview] = useState<LibraryItem | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
   const [recipient, setRecipient] = useState('');
   const [checking, setChecking] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -38,19 +45,48 @@ export default function TransferPage() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [result, setResult] = useState<{ tokenId: string; txHash: string; recipient: string } | null>(null);
 
+  // Bumped on every check: a slow IPFS read for an older token id must never land on a newer one.
+  const lookupSeq = useRef(0);
   const isOwner = Boolean(checked && address && sameAddress(checked.owner, address));
+
+  // The artwork is decoration and the verdict is the decision, so this runs after `checkOwner` and never
+  // feeds back into `checking`. `seq` guards the state: a read for an older token id must not land later.
+  function loadPreview(tokenId: string) {
+    const seq = ++lookupSeq.current;
+    setPreview(null);
+    setPreviewLoading(true);
+    void new GetArtworkPreviewUseCase(makeQuery(), new GatewayIpfsReader())
+      .execute(tokenId)
+      .then((item) => {
+        if (seq === lookupSeq.current) setPreview(item);
+      })
+      .catch(() => {
+        if (seq === lookupSeq.current) setPreview(null);
+      })
+      .finally(() => {
+        if (seq === lookupSeq.current) setPreviewLoading(false);
+      });
+  }
 
   async function checkOwner(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    const seq = ++lookupSeq.current;
     setChecking(true);
     setLookupError(null);
     setChecked(null);
+    setPreview(null);
+    setPreviewLoading(false);
     setResult(null);
     try {
+      // Verdict first, artwork second: the gate on the transfer button must not wait on an IPFS gateway.
       const output = await new GetArtworkOwnerUseCase(makeQuery()).execute(tokenInput);
+      if (seq !== lookupSeq.current) return;
       setChecked({ tokenId: output.tokenId, owner: output.owner });
+      loadPreview(output.tokenId);
     } catch (caught) {
-      setLookupError(caught instanceof Error ? caught.message : 'Không đọc được chủ sở hữu.');
+      if (seq === lookupSeq.current) {
+        setLookupError(caught instanceof Error ? caught.message : 'Không đọc được chủ sở hữu.');
+      }
     } finally {
       setChecking(false);
     }
@@ -140,16 +176,33 @@ export default function TransferPage() {
             ) : null}
 
             {checked ? (
-              <div className='mt-4 rounded-control bg-surface-muted p-4'>
-                <div className='flex flex-wrap items-center gap-2'>
-                  <span className='font-mono text-xs text-ink-muted'>Token #{checked.tokenId}</span>
-                  <StatusPill tone={isOwner ? 'verified' : 'pending'}>
-                    {isOwner ? 'Bạn là chủ sở hữu' : 'Không phải chủ sở hữu'}
-                  </StatusPill>
+              <div className='mt-4 flex items-start gap-4 rounded-control bg-surface-muted p-4'>
+                {previewLoading ? (
+                  <div aria-hidden className='h-20 w-20 shrink-0 animate-pulse rounded-control bg-surface' />
+                ) : (
+                  <ArtworkThumb
+                    item={preview}
+                    alt={preview?.metadata?.name ?? `Token #${checked.tokenId}`}
+                    sizes='80px'
+                    className='h-20 w-20 shrink-0'
+                  />
+                )}
+                <div className='min-w-0'>
+                  <div className='flex flex-wrap items-center gap-2'>
+                    <span className='font-mono text-xs text-ink-muted'>Token #{checked.tokenId}</span>
+                    <StatusPill tone={isOwner ? 'verified' : 'pending'}>
+                      {isOwner ? 'Bạn là chủ sở hữu' : 'Không phải chủ sở hữu'}
+                    </StatusPill>
+                  </div>
+                  {preview?.metadata ? (
+                    <p className='mt-1 truncate text-sm font-semibold' title={preview.metadata.name}>
+                      {preview.metadata.name}
+                    </p>
+                  ) : null}
+                  <p className='mt-1 text-sm text-ink-muted'>
+                    Chủ sở hữu hiện tại: <span className='font-mono text-ink'>{shortenAddress(checked.owner)}</span>
+                  </p>
                 </div>
-                <p className='mt-2 text-sm text-ink-muted'>
-                  Chủ sở hữu hiện tại: <span className='font-mono text-ink'>{shortenAddress(checked.owner)}</span>
-                </p>
               </div>
             ) : null}
           </Card>
@@ -206,16 +259,56 @@ export default function TransferPage() {
           </Card>
         </div>
 
-        <aside className='space-y-4 lg:sticky lg:top-20 lg:self-start'>
+        <aside className='space-y-4 lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start'>
           <Card>
             <CardHeader title='Tác phẩm' />
-            <p className='text-2xl leading-tight tabular-nums'>
-              {checked ? `#${checked.tokenId}` : '—'}
+            {checked && previewLoading ? (
+              <div aria-hidden className='aspect-square w-full animate-pulse rounded-control bg-surface-muted' />
+            ) : checked ? (
+              <ArtworkThumb
+                item={preview}
+                alt={preview?.metadata?.name ?? `Token #${checked.tokenId}`}
+                sizes='(min-width: 1024px) 312px, 100vw'
+                className='aspect-square w-full'
+              />
+            ) : (
+              <div className='flex aspect-square w-full items-center justify-center rounded-control bg-surface-muted px-6 text-center text-xs text-ink-muted'>
+                Ảnh tác phẩm sẽ hiện ở đây.
+              </div>
+            )}
+
+            <p className='mt-4 text-base font-semibold leading-tight tracking-tight'>
+              {!checked
+                ? '—'
+                : preview?.metadata?.name ?? (previewLoading ? 'Đang tải tác phẩm…' : `Token #${checked.tokenId}`)}
             </p>
+            {preview?.metadata ? <p className='mt-0.5 text-xs text-ink-muted'>{preview.metadata.author}</p> : null}
+            {preview?.metadataError ? (
+              <div className='mt-1 flex flex-wrap items-center gap-x-2 gap-y-1'>
+                <p className='text-xs text-ink-muted'>{preview.metadataError}</p>
+                <Button
+                  type='button'
+                  variant='link'
+                  size='sm'
+                  onClick={() => {
+                    if (checked) loadPreview(checked.tokenId);
+                  }}
+                >
+                  Tải lại ảnh
+                </Button>
+              </div>
+            ) : null}
+            <p className='mt-3 font-mono text-sm tabular-nums'>#{checked?.tokenId ?? '—'}</p>
             <p className='mt-1 text-xs text-ink-muted'>Token ERC-721 trên Sepolia</p>
             {checked ? (
-              <div className='mt-3'>
+              <div className='mt-3 space-y-3'>
                 <HashChip label='chủ' value={checked.owner} display={shortenAddress(checked.owner)} />
+                <Link
+                  href={`/verify?tokenId=${checked.tokenId}`}
+                  className='inline-block text-xs font-semibold text-brand underline-offset-4 hover:underline'
+                >
+                  Xem chi tiết trên trang tra cứu
+                </Link>
               </div>
             ) : null}
           </Card>
@@ -256,11 +349,25 @@ export default function TransferPage() {
           </>
         }
       >
-        <dl className='space-y-2 text-sm'>
-          <div className='flex justify-between gap-3'>
-            <dt className='text-ink-muted'>Token</dt>
-            <dd className='font-mono tabular-nums'>#{checked?.tokenId ?? '—'}</dd>
+        <div className='flex items-center gap-3'>
+          {previewLoading ? (
+            <div aria-hidden className='h-14 w-14 shrink-0 animate-pulse rounded-control bg-surface-muted' />
+          ) : (
+            <ArtworkThumb
+              item={preview}
+              alt={preview?.metadata?.name ?? `Token #${checked?.tokenId ?? '—'}`}
+              sizes='56px'
+              className='h-14 w-14 shrink-0'
+            />
+          )}
+          <div className='min-w-0'>
+            <p className='truncate text-sm font-semibold'>
+              {preview?.metadata?.name ?? `Token #${checked?.tokenId ?? '—'}`}
+            </p>
+            <p className='font-mono text-xs tabular-nums text-ink-muted'>#{checked?.tokenId ?? '—'}</p>
           </div>
+        </div>
+        <dl className='mt-4 space-y-2 text-sm'>
           <div className='flex justify-between gap-3'>
             <dt className='text-ink-muted'>Người nhận</dt>
             <dd className='font-mono text-xs'>{recipient ? shortenAddress(recipient) : '—'}</dd>

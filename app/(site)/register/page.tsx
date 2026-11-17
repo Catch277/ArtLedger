@@ -266,7 +266,7 @@ export default function RegisterPage() {
           </Card>
         </div>
 
-        <aside className='space-y-4 lg:sticky lg:top-20 lg:self-start'>
+        <aside className='space-y-4 lg:sticky lg:top-[calc(5rem+env(safe-area-inset-top))] lg:self-start'>
           <Card>
             <CardHeader title='Tiến trình' />
             <div className='hidden lg:block'>

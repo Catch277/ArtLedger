@@ -40,7 +40,7 @@ export function SiteFooter() {
             <Link
               key={link.href}
               href={link.href}
-              className='text-sm text-ink-inverse/80 transition-colors hover:text-ink-inverse focus-visible:text-ink-inverse focus-visible:outline-ink-inverse'
+              className='text-sm text-ink-inverse/80 transition-colors hover:text-ink-inverse focus-visible:text-ink-inverse focus-visible:outline-ink-inverse pointer-coarse:inline-flex pointer-coarse:min-h-11 pointer-coarse:items-center'
             >
               {link.label}
             </Link>
